@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\Category\AdminCategoryController;
 use App\Http\Controllers\Admin\Post\AdminPostController;
 use App\Http\Controllers\Admin\Tag\TagController;
 use App\Http\Controllers\Admin\User\UserController;
+use App\Http\Controllers\Post\PostController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -20,17 +21,15 @@ use Illuminate\Support\Facades\Route;
 
 
 Auth::routes();
-Route::group([], function () {
+
 Route::get('/', [App\Http\Controllers\Main\IndexController::class, 'index'])->name('main.index');
-});
+
 Route::group(['prefix' => 'posts'], function () {
-    Route::get('/', [App\Http\Controllers\Post\IndexController::class, 'index'])->name('post.index');
-    Route::get('/{post}', [App\Http\Controllers\Post\IndexController::class, 'show'])->name('post.show');
-    Route::group(['prefix' => '/comments'], function () {
-        Route::post('/{post}', [\App\Http\Controllers\Post\Comment\IndexController::class, 'store'])->name('post.comment.store');
-});
-    Route::group(['prefix' => '/likes'], function () {
-        Route::post('/{post}', [\App\Http\Controllers\Post\like\IndexController::class, 'store'])->name('post.like.store');
+    Route::get('/', [PostController::class, 'index'])->name('post.index');
+    Route::group(['prefix' => '{post}'], function () {
+        Route::get('/', [PostController::class, 'show'])->name('post.show');
+        Route::post('comments', [PostController::class, 'comment'])->name('post.comment.store');
+        Route::post('likes', [PostController::class, 'like'])->name('post.like.store');
     });
 });
 
