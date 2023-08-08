@@ -1,0 +1,72 @@
+version: "3.9"
+services:
+
+    app:
+        build:
+            context: ./
+            dockerfile: docker/php/Dev.DockerFile
+        container_name: app
+        restart: unless-stopped
+        volumes:
+            - ./:/var/www
+            - ./docker/php/conf.d/extend-php.ini:/usr/local/etc/php/conf.d/extend-php.ini
+        working_dir: /var/www
+        networks:
+            - webserver-network
+
+#    db:
+#        image: postgis/postgis:15-3.3-alpine
+#        container_name: db
+#        restart: unless-stopped
+#        ports:
+#            - "${DB_PORT:-5432}:5432"
+#        environment:
+#            POSTGRES_DB: ${DB_DATABASE}
+#            POSTGRES_USER: ${DB_USERNAME}
+#            POSTGRES_PASSWORD: ${DB_PASSWORD}
+#        volumes:
+#            - ./storage/__db:/var/lib/postgresql/data
+#        networks:
+#            - db-network
+
+    webserver:
+        image: nginx:1.23.3-alpine
+        container_name: webserver
+        restart: unless-stopped
+        volumes:
+            - ./:/var/www/
+            - ./docker/nginx/conf.d/:/etc/nginx/conf.d/
+            - ./storage/logs/nginx/:/var/log/nginx/
+        ports:
+            - "${APP_PORT:-80}:80"
+            - "${APP_SSL_PORT:-433}:433"
+        depends_on:
+            - app
+        networks:
+            - webserver-network
+
+    supervisor:
+        build:
+            context: ./
+            dockerfile: docker/supervisor/DockerFile
+        container_name: supervisor
+        restart: unless-stopped
+        volumes:
+            - ./:/var/www/
+            - ./docker/supervisor/supervisord.conf:/etc/supervisor/supervisord.conf
+            - ./storage/logs/supervisor/:/etc/supervisor/logs/
+        depends_on:
+            - app
+        networks:
+            - webserver-network
+
+    mailhog:
+        image: mailhog/mailhog:latest
+        container_name: mailhog
+        restart: unless-stopped
+        ports:
+            - ${FORWARD_MAILHOG_PORT:-1025}:1025
+            - ${FORWARD_MAILHOG_DASHBOARD_PORT:-8025}:8025
+
+networks:
+    webserver-network:

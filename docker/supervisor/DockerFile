@@ -1,0 +1,10 @@
+FROM php:8.2-fpm-alpine
+
+RUN apk add postgresql postgresql-dev \
+    && docker-php-ext-install pdo_pgsql pcntl
+
+RUN apk update && apk add --no-cache supervisor
+
+RUN mkdir -p "/etc/supervisor/logs"
+
+CMD ["/usr/bin/supervisord", "-n", "-c",  "/etc/supervisor/supervisord.conf"]
