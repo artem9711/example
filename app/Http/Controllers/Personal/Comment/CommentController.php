@@ -7,7 +7,7 @@ use App\Http\Requests\Personal\Comment\UpdateRequest;
 use App\Models\Comment;
 use Illuminate\Http\Request;
 
-class IndexController extends Controller
+class CommentController extends Controller
 {
     public function index()
     {

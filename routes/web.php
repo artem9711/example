@@ -4,6 +4,10 @@ use App\Http\Controllers\Admin\Category\AdminCategoryController;
 use App\Http\Controllers\Admin\Post\AdminPostController;
 use App\Http\Controllers\Admin\Tag\TagController;
 use App\Http\Controllers\Admin\User\UserController;
+use App\Http\Controllers\Personal\Liked\LikedController;
+use App\Http\Controllers\Personal\Comment\CommentController;
+use App\Http\Controllers\Main\MainController;
+use App\Http\Controllers\Personal\Main\MainPersonalController;
 use App\Http\Controllers\Post\PostController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -22,7 +26,7 @@ use Illuminate\Support\Facades\Route;
 
 Auth::routes();
 
-Route::get('/', [App\Http\Controllers\Main\IndexController::class, 'index'])->name('main.index');
+Route::get('/', [MainController::class, 'index'])->name('main.index');
 
 Route::group(['prefix' => 'posts'], function () {
     Route::get('/', [PostController::class, 'index'])->name('post.index');
@@ -36,17 +40,17 @@ Route::group(['prefix' => 'posts'], function () {
 
 Route::group(['prefix' => 'personal', 'middleware' => ['auth', 'verified']], function () {
     Route::group(['prefix' => 'main', 'middleware' => ['auth', 'verified']], function () {
-    Route::get('/', [\App\Http\Controllers\Personal\Main\IndexController::class, 'index'])->name('personal.main.index');
+    Route::get('/', [MainPersonalController::class, 'index'])->name('personal.main.index');
     });
     Route::group(['prefix' => 'liked', 'middleware' => ['auth', 'verified']], function () {
-        Route::get('/', [\App\Http\Controllers\Personal\Liked\IndexController::class, 'index'])->name('personal.liked.index');
-        Route::delete('/{post}', [\App\Http\Controllers\Personal\Liked\DeletedController::class, 'delete'])->name('personal.liked.delete');
+        Route::get('/', [LikedController::class,'index'])->name('personal.liked.index');
+        Route::delete('/{post}', [LikedController::class, 'delete'])->name('personal.liked.delete');
     });
     Route::group(['prefix' => 'comments', 'middleware' => ['auth', 'verified']], function () {
-        Route::get('/', [\App\Http\Controllers\Personal\Comment\IndexController::class, 'index'])->name('personal.comment.index');
-        Route::get('/{comment}/edit', [\App\Http\Controllers\Personal\Comment\IndexController::class, 'edit'])->name('personal.comment.edit');
-        Route::patch('/{comment}', [\App\Http\Controllers\Personal\Comment\IndexController::class, 'update'])->name('personal.comment.update');
-        Route::delete('/{comment}', [\App\Http\Controllers\Personal\Comment\IndexController::class, 'delete'])->name('personal.comment.delete');
+        Route::get('/', [CommentController::class, 'index'])->name('personal.comment.index');
+        Route::get('/{comment}/edit', [CommentController::class, 'edit'])->name('personal.comment.edit');
+        Route::patch('/{comment}', [CommentController::class, 'update'])->name('personal.comment.update');
+        Route::delete('/{comment}', [CommentController::class, 'delete'])->name('personal.comment.delete');
     });
 });
 
